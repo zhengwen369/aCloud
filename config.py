@@ -11,7 +11,7 @@ _SQL_PARAMS = {
     'port': 3306,
     'user': 'root',
     }
-SQLALCHEMY_DATABASE_URI = "mysql://%s:%s@%s:%s/%s" % (_SQL_PARAMS['user'], _SQL_PARAMS['passwd'], _SQL_PARAMS['host'], _SQL_PARAMS['port'], _SQL_PARAMS['db'])
+SQLALCHEMY_DATABASE_URI = "mysql+pymysql://%s:%s@%s:%s/%s" % (_SQL_PARAMS['user'], _SQL_PARAMS['passwd'], _SQL_PARAMS['host'], _SQL_PARAMS['port'], _SQL_PARAMS['db'])
 SQLALCHEMY_TRACK_MODIFICATIONS = True
 
 # Flask-WTF config
