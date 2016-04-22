@@ -1,6 +1,7 @@
 # coding: utf-8
 from base import *
 
+
 class EcsArticle(Base):
     __tablename__ = 'ecs_article'
 
