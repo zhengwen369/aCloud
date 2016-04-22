@@ -1,11 +1,5 @@
 # coding: utf-8
-from sqlalchemy import BigInteger, Column, Date, DateTime, Index, Integer, Numeric, SmallInteger, String, Table, Text, text
-from flask.ext.sqlalchemy import SQLAlchemy
-
-db = SQLAlchemy()
-Base = db.Model
-metadata = db.metadata
-
+from base import *
 
 class EcsArticle(Base):
     __tablename__ = 'ecs_article'
@@ -24,3 +18,4 @@ class EcsArticle(Base):
     open_type = Column(Integer, nullable=False, server_default=text("'0'"))
     link = Column(String(255), nullable=False, server_default=text("''"))
     description = Column(String(255))
+
