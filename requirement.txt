@@ -11,3 +11,4 @@ Flask-SQLAlchemy>=2.1
 flask-login>=0.3.2
 sqlacodegen>=1.1.6
 PyMySQL>=0.7.2
+Pylint>=1.5.5

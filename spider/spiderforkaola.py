@@ -1,12 +1,12 @@
 #  -*- coding: utf-8 -*-
 import datetime
 import json
-import common
-import requests
 from os.path import basename
+import requests
+from spider import common
 
 
-class Spider:
+class Spider(object):
     def __init__(self):
         pass
 
@@ -14,7 +14,7 @@ class Spider:
         'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:45.0) Gecko/20100101 Firefox/45.0'
     }
 
-    s = requests.session()
+    req_session = requests.session()
 
     def login(self, login_info):
         """
@@ -25,19 +25,19 @@ class Spider:
         my_header = self.headers.copy()
         my_header["Host"] = "www.kaolafm.com"
         my_header["Referer"] = "http://www.kaolafm.com/user/user/login/login.do"
-        r = self.s.post("http://www.kaolafm.com/user/user/login/loginByEmail.do", data=login_info, headers=my_header)
-        return r.text
+        resp = self.req_session.post("http://www.kaolafm.com/user/user/login/loginByEmail.do", data=login_info, headers=my_header)
+        return resp.text
 
-    def get_albumImg(self, catalogId, albumId):
+    def get_album_img(self, catalog_id, album_id):
         album_info = {
-            "catalogId": catalogId,
-            "albumId": albumId
+            "catalogId": catalog_id,
+            "albumId": album_id
         }
         my_header = self.headers.copy()
         my_header["Host"] = "www.kaolafm.com"
         my_header["Referer"] = "http://www.kaolafm.com/user/program/0/add.do"
-        r = self.s.get("http://www.kaolafm.com/user/program/getRecommondWords.do", params=album_info, headers=my_header)
-        json_result = json.loads(r.text)
+        resp = self.req_session.get("http://www.kaolafm.com/user/program/getRecommondWords.do", params=album_info, headers=my_header)
+        json_result = json.loads(resp.text)
         return json_result["albumImg"]
 
     def upload_file(self, file_full_name):
@@ -54,8 +54,8 @@ class Spider:
         my_header = self.headers.copy()
         my_header["Host"] = "www.kaolafm.com"
         my_header["Referer"] = "http://www.kaolafm.com/user/program/0/add.do"
-        r = self.s.post("http://www.kaolafm.com/user/controller/admin/upload/uploadAudio.do", params=upload_info, files=file1, headers=my_header)
-        return json.loads(r.text)
+        resp = self.req_session.post("http://www.kaolafm.com/user/controller/admin/upload/uploadAudio.do", params=upload_info, files=file1, headers=my_header)
+        return json.loads(resp.text)
 
     def publish(self, album_id, catalog_id, file_full_name):
         store_base_path = "http://image.kaolafm.net"
@@ -63,7 +63,7 @@ class Spider:
         pub_info = {
             "activityId": "",
             "albumId": album_id,
-            "anchorInfos": ""	,
+            "anchorInfos": "",
             "audioDesc": "暂无",
             "catalogId": catalog_id,
             "cutSize": "550_550,340_340,250_250,100_100",
@@ -73,7 +73,7 @@ class Spider:
             "height": "",
             "imagePixelH": 550,
             "imagePixelW": 550,
-            "img": self.get_albumImg(catalog_id, album_id),
+            "img": self.get_album_img(catalog_id, album_id),
             "imgSrc": "",
             "keyword": "暂无",
             "maxSize": 1024000,
@@ -90,8 +90,8 @@ class Spider:
         my_header = self.headers.copy()
         my_header["Host"] = "www.kaolafm.com"
         my_header["Referer"] = "http://www.kaolafm.com/user/program/0/add.do"
-        r = self.s.post("http://www.kaolafm.com/user/program/addInput.do", data=pub_info, headers=my_header)
-        return r.text
+        resp = self.req_session.post("http://www.kaolafm.com/user/program/addInput.do", data=pub_info, headers=my_header)
+        return resp.text
 
     """暂时无用
     def setCoords(self, coods_info, jw):
@@ -112,8 +112,8 @@ class Spider:
         my_header = self.headers.copy()
         my_header["Host"] = "www.kaolafm.com"
         my_header["Referer"] = "http://www.kaolafm.com/user/program/0/add.do"
-        r = self.s.get("http://www.kaolafm.com/user/program/checkUserLevel.do", headers=my_header)
-        json_result = json.loads(r.text)
+        resp = self.req_session.get("http://www.kaolafm.com/user/program/checkUserLevel.do", headers=my_header)
+        json_result = json.loads(resp.text)
         if json_result["level"] is not None:
             if json_result["level"] == 2 or json_result["level"] == 3:
                 result = True
@@ -132,9 +132,9 @@ class Spider:
         my_header = self.headers.copy()
         my_header["Host"] = "www.kaolafm.com"
         my_header["Referer"] = "http://www.kaolafm.com/user/program/0/add.do"
-        r = self.s.post("http://www.kaolafm.com/user/controller/admin/upload/newUploadImageCommon.do", params=upload_info, files=file1, headers=my_header)
+        resp = self.req_session.post("http://www.kaolafm.com/user/controller/admin/upload/newUploadImageCommon.do", params=upload_info, files=file1, headers=my_header)
         # 切片
-        json_upload_result = json.loads(r.text)
+        json_upload_result = json.loads(resp.text)
         jw = 296
         coods_info = {
             "x": 0,
@@ -153,20 +153,24 @@ class Spider:
             "iname": json_upload_result["fileName"]
         }
         self.setCoords(coods_info, jw)
-        r = self.s.post("http://www.kaolafm.com/user/controller/admin/upload/newUploadImageCutCommon.do", data=coods_info, headers=my_header)
-        json_upload_result = json.loads(r.text)
+        resp = self.req_session.post("http://www.kaolafm.com/user/controller/admin/upload/newUploadImageCutCommon.do", data=coods_info, headers=my_header)
+        json_upload_result = json.loads(resp.text)
     """
 
-if __name__ == "__main__":
+
+def run_test():
     spider = Spider()
     login_info = {
-            "userName": "xxx",
-            "password": "xxx",
-            "isRemberMe": "yes"
+        "userName": "xxx",
+        "password": "xxx",
+        "isRemberMe": "yes"
     }
     spider.login(login_info)
     file_full_name = r"E:\MP3Root\RootAdMP3\0\0\8\1363846799833.mp3"
-    albumId = "1100000160109"
-    catalogId = "120"
-    result = spider.publish(albumId, catalogId, file_full_name)
+    album_id = "1100000160109"
+    catalog_id = "120"
+    result = spider.publish(album_id, catalog_id, file_full_name)
     print result
+
+if __name__ == "__main__":
+    run_test()

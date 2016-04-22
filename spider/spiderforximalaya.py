@@ -2,13 +2,13 @@
 import hashlib
 import json
 import time
-import common
+from os.path import getsize, basename
 import requests
 import rsa
-from os.path import getsize, basename
+from spider import common
 
 
-class Spider:
+class Spider(object):
     def __init__(self):
         pass
 
@@ -17,7 +17,7 @@ class Spider:
         'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; WOW64; rv:45.0) Gecko/20100101 Firefox/45.0'
     }
 
-    s = requests.session()
+    req_session = requests.session()
 
     token = ""
 
@@ -27,9 +27,9 @@ class Spider:
         计算MD5值
         :param msg: str
         """
-        m = hashlib.md5()
-        m.update(msg)
-        return m.hexdigest()
+        md5 = hashlib.md5()
+        md5.update(msg)
+        return md5.hexdigest()
 
     @staticmethod
     def encryption(msg):
@@ -49,8 +49,8 @@ class Spider:
         获取LoginToken
         """
         my_header = self.headers.copy()
-        r = self.s.get("http://www.ximalaya.com/passport/token/login", headers=my_header)
-        token_json = json.loads(r.text)
+        resp = self.req_session.get("http://www.ximalaya.com/passport/token/login", headers=my_header)
+        token_json = json.loads(resp.text)
         return token_json["token"]
 
     def login(self, login_info):
@@ -62,8 +62,8 @@ class Spider:
         my_header = self.headers.copy()
         my_header["Referer"] = "http://www.ximalaya.com/explore/"
         login_info["password"] = self.encryption(str(self.md5(login_info["password"]) + self.get_login_token()))
-        r = self.s.post("http://www.ximalaya.com/passport/security/popupLogin", data=login_info, headers=my_header)
-        self.token = self.s.cookies[r"1&_token"]
+        self.req_session.post("http://www.ximalaya.com/passport/security/popupLogin", data=login_info, headers=my_header)
+        self.token = self.req_session.cookies[r"1&_token"]
 
     def upload_file(self, album_id, file_full_name):
         """
@@ -79,7 +79,7 @@ class Spider:
             "token": self.token,
             "rememberMe": "true"
         }
-        r = self.s.get("http://www.ximalaya.com/passport/check_me", params=check_me_info, headers=my_header)
+        resp = self.req_session.get("http://www.ximalaya.com/passport/check_me", params=check_me_info, headers=my_header)
         # 上传音频
         upload_info = {
             "fileSize": getsize(file_full_name),
@@ -87,15 +87,15 @@ class Spider:
             "rememberMe": "true"
         }
         file1 = {'file': (basename(file_full_name), open(file_full_name, 'rb'), common.get_mime_type(file_full_name), {'Expires': '0'})}
-        r = self.s.post("http://upload.ximalaya.com/dtres/audio/upload", params=upload_info, files=file1, headers=my_header)
-        json_upload_result = json.loads(r.text)
+        resp = self.req_session.post("http://upload.ximalaya.com/dtres/audio/upload", params=upload_info, files=file1, headers=my_header)
+        json_upload_result = json.loads(resp.text)
         if json_upload_result["status"]:
             # 转码
             fileid = json_upload_result["data"][0]["uploadTrack"]["id"]
             timestamp = str(time.time()).replace('.', '')
             jindu_url = "http://www.ximalaya.com/dtres/zhuanma/%s/jindu/%s" % (fileid, timestamp)
-            r = self.s.get(jindu_url, headers=my_header)
-            r = self.s.get("http://www.ximalaya.com/dtres/transcode/url",params={"uploadTrackId": fileid}, headers=my_header)
+            resp = self.req_session.get(jindu_url, headers=my_header)
+            resp = self.req_session.get("http://www.ximalaya.com/dtres/transcode/url", params={"uploadTrackId": fileid}, headers=my_header)
             # 发布
             filename = json_upload_result["data"][0]["fileName"].split('.')[0]
             create_data = {
@@ -116,18 +116,22 @@ class Spider:
                 "sound_title": filename,
                 "track_destroy": ""
             }
-            r = self.s.post("http://www.ximalaya.com/upload2/create", data=create_data, headers=my_header)
-            return r.text
+            resp = self.req_session.post("http://www.ximalaya.com/upload2/create", data=create_data, headers=my_header)
+            return resp.text
 
-if __name__ == "__main__":
+
+def run_test():
     album_id = "4064168"  # 专辑Id
     file_full_name = u"E:/MP3Root/RootAdMP3/0/0/8/1363846799833.mp3"
     spider = Spider()
     login_info = {
-            "account": "xxx",
-            "password": "xxx",
-            "rememberMe": "true"
+        "account": "xxx",
+        "password": "xxx",
+        "rememberMe": "true"
     }
     spider.login(login_info)
     result = spider.upload_file(album_id, file_full_name)
     print result
+
+if __name__ == "__main__":
+    run_test()

@@ -6,7 +6,7 @@ WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 
 
-class VCodeOCR:
+class VCodeOCR(object):
     def __init__(self, img):
         self.img = img
         self.frame = img.load()
@@ -23,7 +23,7 @@ class VCodeOCR:
                 else:
                     self.frame[i, j] = BLACK
 
-    def remove_noise(self, window = 1):
+    def remove_noise(self, window=1):
         """ 中值滤波移除噪点
         """
         if window == 1:
@@ -32,13 +32,13 @@ class VCodeOCR:
             window_y = [0, 1, 0, 0, -1]
         elif window == 2:
             # 3*3矩形窗口
-            window_x = [-1,  0,  1, -1, 0, 1, 1, -1, 0]
-            window_y = [-1, -1, -1,  1, 1, 1, 0,  0, 0]
+            window_x = [-1, 0, 1, -1, 0, 1, 1, -1, 0]
+            window_y = [-1, -1, -1, 1, 1, 1, 0, 0, 0]
         width, height = self.img.size
         for i in xrange(width):
             for j in xrange(height):
                 box = []
-                black_count, white_count = 0, 0
+                # black_count, white_count = 0, 0
                 for k in xrange(len(window_x)):
                     d_x = i + window_x[k]
                     d_y = j + window_y[k]
@@ -58,9 +58,6 @@ class VCodeOCR:
                         self.frame[i, j] = BLACK
                     else:
                         self.frame[i, j] = WHITE
-
-    def format_div(self, div, size=(20, 40)):
-        return div
 
     def split(self):
         """  用竖线扫描分隔文字
@@ -98,7 +95,7 @@ class VCodeOCR:
             try:
                 xi = pos_x[i]
                 xj = pos_x[i+1]
-            except:
+            except Exception, e:
                 break
             i += 2
             boxs.append([xi, xj])
@@ -118,10 +115,7 @@ class VCodeOCR:
                 i += 1
         for box in fixed_boxs:
             div = self.img.crop((box[0], 0, box[1], heigth))
-            try:
-                divs.append(self.format_div(div, size=(20, 40)))
-            except:
-                divs.append(div)
+            divs.append(div)
         # 过滤掉非字符的切片
         _divs = []
         for div in divs:
@@ -138,11 +132,11 @@ class VCodeOCR:
             # 单张图片中至少有N个黑色点
             if points <= 5:
                 continue
-            new_div = self.format_div(div)
-            _divs.append(new_div)
+            _divs.append(div)
         return _divs
 
-    def image_to_string(self, img, config='-psm 8'):
+    @staticmethod
+    def image_to_string(img, config='-psm 8'):
         """
         使用tesseract 识别图片中的文字
         """
@@ -150,10 +144,11 @@ class VCodeOCR:
             result = pytesseract.image_to_string(img, lang='eng', config=config)
             result = result.strip()
             return result.lower()
-        except:
+        except IOError, e:
             return None
 
-if __name__ == "__main__":
+
+def run_test():
     image = Image.open('D:/captcha/captcha9.jpg')
     vcodeocr = VCodeOCR(image)
     print vcodeocr.image_to_string(image)
@@ -167,3 +162,6 @@ if __name__ == "__main__":
         i = i +1
     image.save("D:/captcha_pre/captcha_all.jpg", "JPEG")
     print vcodeocr.image_to_string(image)
+
+if __name__ == "__main__":
+    run_test()
