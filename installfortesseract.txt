@@ -1,0 +1,80 @@
+Tesseract for Windows binaries
+
+Please Note: The compiled version of Tesseract is bleeding edge code. So this might be broken or partly working.
+
+Hi all,
+
+This is a short description how to install Tesseract on your computer.
+
+It's actually pretty easy:
+
+There are 2 exe files:
+
+tesseract-core-yyyymmdd.exe
+Tesseract core application without language data
+
+tesseract-langs-yyyymmdd.exe
+All the language data available for Tesseract.
+
+yyyymmdd means year 4 digits, month 2 digits and day 2 digits.
+
+The app is portable so you can install it on a USB stick or in another location.
+
+Steps to install:
+1. Download the tesseract-core and tesseract-langs packages.
+2. Double click the tesseract-core package and extract it to a directory where you want it to be.
+3. Double click the tesseract-langs package and extract it to the same directory but add \tessdata to it.
+For example if i would have extracted tesseract-core to c:\tesseract, tesseract-langs needs to go to c:\tesseract\tessdata.
+
+Open up a command prompt and navigate to your installation path.
+
+For a test you can enter:
+
+tesseract filename.tif filename -l eng pdf
+
+This will generate a filename.txt and a filename.pdf file.
+The PDF files are searchable.
+
+Please note: For blind people this PDF version is a little bit broken at the moment and you can't read all the text. Use the normal text output.
+
+You can also create a hOCR file which is a kind of HTML file with this command:
+
+tesseract filename.tif filename -l eng hocr
+
+And you can just create a text file by doing this:
+
+tesseract filename.tif filename -l eng
+
+In the tessdata directory you will find all kinds of languages.
+the -l flag activates the languages.
+deu for german, eng for english or rus for russian or ukr for ukrainian and so on.
+Please check the tessdata directory for more languages.
+
+You can also add more languages to check a multi language text.
+
+tesseract filename.tif filename -l eng+deu
+
+This will activate for example the english and german language modules.
+
+The doc directory contains some documentation.
+
+Tesseract currently supports multipage TIF files, JPG, WEBP files and others.
+It doesn't support multipage PDFs as input.
+Though you might use ImageMagick to convert multipage PDF to a multipage TIF file.
+
+To stay up to date you can check on the following url:
+http://domasofan.spdns.eu/tesseract/
+
+The tesseract-langs package might not be updated so often so you don't need to redownload the large file all the time.
+
+When there are updates you can extract the file into your directory and replace the old files with the new ones.
+Just follow the steps above.
+
+
+The Tesseract source code and language data is aavailable on
+https://github.com/tesseract-ocr/
+
+Enjoy.
+
+Greetings,
+Simon
