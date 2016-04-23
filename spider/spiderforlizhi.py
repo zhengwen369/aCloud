@@ -36,7 +36,8 @@ class Spider(object):
         my_header = self.headers.copy()
         my_header["Host"] = "nj.lizhi.fm"
         my_header["Referer"] = "http://nj.lizhi.fm/radio/upload"
-        resp = self.req_session.get("http://nj.lizhi.fm/radio/upload_token", params={"t": timestamp}, headers=my_header)
+        resp = self.req_session.get("http://nj.lizhi.fm/radio/upload_token", params={"t": timestamp},
+                                    headers=my_header)
         return json.loads(resp.text)
 
     def upload_file(self, file_full_name):
@@ -54,7 +55,8 @@ class Spider(object):
             "key": token_json["ret"]["key"],
             "token": token_json["ret"]["token"]
         }
-        file1 = {'file': (basename(file_full_name), open(file_full_name, 'rb'), common.get_mime_type(file_full_name), {'Expires': '0'})}
+        file1 = {'file': (basename(file_full_name), open(file_full_name, 'rb'), common.get_mime_type(file_full_name),
+                          {'Expires': '0'})}
         my_header = self.headers.copy()
         my_header["Host"] = "uplz.qiniu.com"
         my_header["Origin"] = "http://nj.lizhi.fm"
@@ -82,7 +84,8 @@ class Spider(object):
         my_header = self.headers.copy()
         my_header["Host"] = "nj.lizhi.fm"
         my_header["Referer"] = "http://nj.lizhi.fm/radio/upload"
-        resp = self.req_session.post("http://nj.lizhi.fm/radio/json_uploadfinish_cloud", data=post_info, headers=my_header)
+        resp = self.req_session.post("http://nj.lizhi.fm/radio/json_uploadfinish_cloud", data=post_info,
+                                     headers=my_header)
         return resp.text
 
 
