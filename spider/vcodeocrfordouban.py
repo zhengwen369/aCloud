@@ -24,12 +24,15 @@ class VCodeOCR(object):
                     self.frame[i, j] = BLACK
 
     def remove_noise(self, window=1):
-        """ 中值滤波移除噪点
         """
+        中值滤波移除噪点
+        :param window 窗口类型
+        """
+        # 十字窗口
+        window_x = [1, 0, 0, -1, 0]
+        window_y = [0, 1, 0, 0, -1]
         if window == 1:
-            # 十字窗口
-            window_x = [1, 0, 0, -1, 0]
-            window_y = [0, 1, 0, 0, -1]
+            pass
         elif window == 2:
             # 3*3矩形窗口
             window_x = [-1, 0, 1, -1, 0, 1, 1, -1, 0]
@@ -77,8 +80,9 @@ class VCodeOCR(object):
                 _line_status = 1
             if _line_status != line_status:
                 if line_status is not None:
+                    _x = x
                     if _line_status == 0:
-                        _x = x
+                        pass
                     elif _line_status == 1:
                         _x = x-1
                     pos_x.append(_x)
@@ -95,7 +99,7 @@ class VCodeOCR(object):
             try:
                 xi = pos_x[i]
                 xj = pos_x[i+1]
-            except Exception, e:
+            except IndexError:
                 break
             i += 2
             boxs.append([xi, xj])
@@ -108,7 +112,7 @@ class VCodeOCR(object):
                     box_next = boxs[i+1]
                     fixed_boxs.append([box[0], box_next[1]])
                     i += 2
-                except Exception, e:
+                except IndexError:
                     break
             else:
                 fixed_boxs.append(box)
@@ -139,12 +143,14 @@ class VCodeOCR(object):
     def image_to_string(img, config='-psm 8'):
         """
         使用tesseract 识别图片中的文字
+        :param img
+        :param config
         """
         try:
             result = pytesseract.image_to_string(img, lang='eng', config=config)
             result = result.strip()
             return result.lower()
-        except IOError, e:
+        except IOError:
             return None
 
 
@@ -159,7 +165,7 @@ def run_test():
     for div in divs:
         div.save("D:/captcha_pre/captcha_" + str(i) + ".jpg")
         print vcodeocr.image_to_string(div)
-        i = i +1
+        i += 1
     image.save("D:/captcha_pre/captcha_all.jpg", "JPEG")
     print vcodeocr.image_to_string(image)
 

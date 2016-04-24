@@ -1,7 +1,7 @@
 #  -*- coding: utf-8 -*-
 import datetime
 import json
-from os.path import basename
+from os.path import basename, splitext
 import requests
 from spider import common
 
@@ -25,8 +25,11 @@ class Spider(object):
         my_header = self.headers.copy()
         my_header["Host"] = "www.kaolafm.com"
         my_header["Referer"] = "http://www.kaolafm.com/user/user/login/login.do"
-        resp = self.req_session.post("http://www.kaolafm.com/user/user/login/loginByEmail.do",
-                                     data=login_info, headers=my_header)
+        resp = self.req_session.post(
+            "http://www.kaolafm.com/user/user/login/loginByEmail.do",
+            data=login_info,
+            headers=my_header
+        )
         return resp.text
 
     def get_album_img(self, catalog_id, album_id):
@@ -37,8 +40,11 @@ class Spider(object):
         my_header = self.headers.copy()
         my_header["Host"] = "www.kaolafm.com"
         my_header["Referer"] = "http://www.kaolafm.com/user/program/0/add.do"
-        resp = self.req_session.get("http://www.kaolafm.com/user/program/getRecommondWords.do",
-                                    params=album_info, headers=my_header)
+        resp = self.req_session.get(
+            "http://www.kaolafm.com/user/program/getRecommondWords.do",
+            params=album_info,
+            headers=my_header
+        )
         json_result = json.loads(resp.text)
         return json_result["albumImg"]
 
@@ -52,13 +58,23 @@ class Spider(object):
             "modelType": "programe_audio_audio",
             "oldUploadFile": ""
         }
-        file1 = {'uploadAudioFile': (basename(file_full_name), open(file_full_name, 'rb'),
-                                     common.get_mime_type(file_full_name), {'Expires': '0'})}
+        file1 = {
+            'uploadAudioFile': (
+                basename(file_full_name),
+                open(file_full_name, 'rb'),
+                common.get_mime_type(file_full_name),
+                {'Expires': '0'}
+            )
+        }
         my_header = self.headers.copy()
         my_header["Host"] = "www.kaolafm.com"
         my_header["Referer"] = "http://www.kaolafm.com/user/program/0/add.do"
-        resp = self.req_session.post("http://www.kaolafm.com/user/controller/admin/upload/uploadAudio.do",
-                                     params=upload_info, files=file1, headers=my_header)
+        resp = self.req_session.post(
+            "http://www.kaolafm.com/user/controller/admin/upload/uploadAudio.do",
+            params=upload_info,
+            files=file1,
+            headers=my_header
+        )
         return json.loads(resp.text)
 
     def publish(self, album_id, catalog_id, file_full_name):
@@ -94,12 +110,15 @@ class Spider(object):
         my_header = self.headers.copy()
         my_header["Host"] = "www.kaolafm.com"
         my_header["Referer"] = "http://www.kaolafm.com/user/program/0/add.do"
-        resp = self.req_session.post("http://www.kaolafm.com/user/program/addInput.do", data=pub_info,
-                                     headers=my_header)
+        resp = self.req_session.post(
+            "http://www.kaolafm.com/user/program/addInput.do",
+            data=pub_info,
+            headers=my_header
+        )
         return resp.text
 
-    """暂时无用
-    def setCoords(self, coods_info, jw):
+    @staticmethod
+    def set_coords(coods_info, jw):
         scalewh = 148
         coods = {
             "x": (jw - scalewh)/2,
@@ -117,8 +136,10 @@ class Spider(object):
         my_header = self.headers.copy()
         my_header["Host"] = "www.kaolafm.com"
         my_header["Referer"] = "http://www.kaolafm.com/user/program/0/add.do"
-        resp = self.req_session.get("http://www.kaolafm.com/user/program/checkUserLevel.do",
-                                    headers=my_header)
+        resp = self.req_session.get(
+            "http://www.kaolafm.com/user/program/checkUserLevel.do",
+            headers=my_header
+        )
         json_result = json.loads(resp.text)
         if json_result["level"] is not None:
             if json_result["level"] == 2 or json_result["level"] == 3:
@@ -134,13 +155,24 @@ class Spider(object):
             "maxSize": 1024000,
             "minSize": 5120
         }
-        file1 = {'uploadImageFile': (basename(img_full_name), open(img_full_name, 'rb'),
-                                     common.get_mime_type(img_full_name), {'Expires': '0'})}
+        file1 = {
+            'uploadImageFile': (
+                basename(img_full_name),
+                open(img_full_name, 'rb'),
+                common.get_mime_type(img_full_name),
+                {'Expires': '0'}
+            )
+        }
         my_header = self.headers.copy()
         my_header["Host"] = "www.kaolafm.com"
         my_header["Referer"] = "http://www.kaolafm.com/user/program/0/add.do"
         upload_url = "http://www.kaolafm.com/user/controller/admin/upload/newUploadImageCommon.do"
-        resp = self.req_session.post(upload_url, params=upload_info, files=file1, headers=my_header)
+        resp = self.req_session.post(
+            upload_url,
+            params=upload_info,
+            files=file1,
+            headers=my_header
+        )
         # 切片
         json_upload_result = json.loads(resp.text)
         jw = 296
@@ -149,7 +181,7 @@ class Spider(object):
             "y": 0,
             "w": 100,
             "h": 100,
-            "cw": float(json_upload_result["width"])/jw,
+            "cw": float(json_upload_result["width"]) / jw,
             "imgSrc": json_upload_result["uploadFilePath"],
             "suffix": upload_info["suffix"],
             "maxSize": upload_info["maxSize"],
@@ -160,11 +192,14 @@ class Spider(object):
             "cutSize": "550_550,340_340,250_250,100_100",
             "iname": json_upload_result["fileName"]
         }
-        self.setCoords(coods_info, jw)
+        self.set_coords(coods_info, jw)
         cut_url = "http://www.kaolafm.com/user/controller/admin/upload/newUploadImageCutCommon.do"
-        resp = self.req_session.post(cut_url, data=coods_info, headers=my_header)
-        json_upload_result = json.loads(resp.text)
-    """
+        resp = self.req_session.post(
+            cut_url,
+            data=coods_info,
+            headers=my_header
+        )
+        return json.loads(resp.text)
 
 
 def run_test():
